@@ -1,3 +1,9 @@
+.badan {
+  background: #000;
+  color: #fff;
+  text-align: center;
+}
+
 .connect {
   position: fixed;
   top: 5%;
@@ -51,18 +57,21 @@
     top: 0;
     right: 0;
     width: 100%;
-    height: 545px;
-    background-color: crimson;
+    height: 100%;
+    background-image: url(https://gateway.ipfscdn.io/ipfs/Qmb2NhwZf793hVWpwY5BHRpY8ohwqigm6sAK8ZoWiWrJk5/0.jpg);
     z-index: -9999999999;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
-.background_putih {
-    background-color: white;
-    border-top-left-radius: 45px;
-    border-top-right-radius: 45px;
-    box-shadow: 0 -5px 20px -2px rgb(0 0 0 / 50%);
+.background_hitam {
+    background: rgba(255, 255, 255, 0.39);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6.3px);
+    -webkit-backdrop-filter: blur(6.3px);
     padding: 10px;}
 .main {
-    max-width: 1024px;
     margin: auto;
 }
 
@@ -105,6 +114,18 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+}
+
+.beforeIn {
+    max-width: 400px;
+    margin: auto;
+    margin-top: 55px !important;
+}
+
+.beforeMint {
+    max-width: 330px;
+    margin: auto;
+    margin-bottom: 55px !important;
 }
 
 .header {
@@ -220,7 +241,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr;
-    grid-gap: 2%;
+    grid-gap: 10px;
 }
 
 .listingShortView {
@@ -277,7 +298,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 20px;
+    padding: 0 20px;
 }
 
 .grupInput {
@@ -307,6 +328,9 @@
 .explain {
   font-size: 1.125rem;
     padding: 25px;
+    margin: 0;
+    margin-top: 15px;
+    color: #fff;
 }
 
 .purple {
@@ -315,14 +339,15 @@
 
 .divider {
   width: 100%;
-    border-top: 0;
+  border-top: 0;
   opacity: 0.25;
+  margin: 1.5rem 0;
 }
 
 .smallDivider {
   width: 100%;
     border-top: 0;
-  margin-top: 64px;
+  margin-top: 30px;
   opacity: 0.25;
 }
 
@@ -342,6 +367,23 @@
   padding: 0 16px;
   font-size: 1rem;
   margin-bottom: 16px;
+}
+
+.card_body{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    padding: 10px;
+    justify-content: space-between;
+}
+
+.btn_group_counter{
+    display: none!important;
+    align-content: center;
+    align-items: center;
 }
 
 .imageInput {
@@ -384,7 +426,7 @@
 /* Between 700px and 900px */
 @media screen and (min-width: 700px) and (max-width: 900px) {
   .contractBoxGrid {
-    gap: 2%;
+    grid-gap: 10px;
   }
 
   .contractBox {
@@ -394,7 +436,7 @@
 
 @media screen and (max-width: 699px) {
   .contractBoxGrid {
-    gap: 2%;
+    grid-gap: 10px;
   }
 
   .contractBox {
@@ -409,7 +451,7 @@
     grid-template-rows: 1fr;
     align-items: center;
     justify-content: center;
-    grid-gap: 2%;
+    grid-gap: 10px;
     margin-top: 28px !important;
     margin-bottom: 28px !important;
     flex-wrap: wrap;
@@ -424,7 +466,7 @@
     grid-template-rows: 1fr;
     align-items: center;
     justify-content: center;
-    grid-gap: 2%;
+    grid-gap: 10px;
     margin-top: 28px;
     flex-wrap: wrap;
 }
@@ -433,6 +475,7 @@
   border-radius: 16px;
   border: 0;
   min-height: 200px;
+  padding: 10px;
 }
 
 .optionSelectBox {
@@ -455,6 +498,7 @@
   font-size: 1.75rem;
   margin-top: 8px;
   margin-bottom: 8px;
+  text-shadow: 0 0 18px #ffffffc2;
 }
 
 .selectBoxDescription {
@@ -492,7 +536,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  grid-gap: 1%;
+  grid-gap: 8px;
   flex-wrap: wrap;
   margin-top: 16px;
 }
@@ -505,7 +549,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.4);
   grid-gap: 16px;
 }
 
@@ -634,10 +677,12 @@
     padding: 0;
   }
 
+.card {margin: 0 !important;}
+
 .nftRowGrid {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
 }
 
@@ -671,18 +716,51 @@
 
   .leftListing {
     width: 100%;
-    margin-bottom: 20px;
   }
 
   .rightListing {
     width: 100%;
     align-items: center;
+    margin-bottom: 80px;
   }
     .grupInput {
     position: fixed;
+    width: 100%;
+    max-width: -webkit-fill-available;
     right: 0;
     bottom: 0;
     padding: 20px 10px;
-    }
+    background: #fff;
+    box-shadow: 0px -6px 10px -2px #0000006e;
+  }
 .collectionContainer {margin-top: 18% !important}
 }
+
+
+.metamask {
+    background: url(../public/icons/metamask.svg);
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.walletconnect {
+    background: url(../public/icons/walletconnect.svg);
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.coinbase {
+    background: url(../public/icons/coinbase.svg);
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+

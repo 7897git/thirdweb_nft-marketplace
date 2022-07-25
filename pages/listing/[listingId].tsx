@@ -4,6 +4,10 @@ import {
   useNetwork,
   useNetworkMismatch,
   useListing,
+  useAddress,
+  useMetamask,
+  useWalletConnect,
+  useCoinbaseWallet,
 } from "@thirdweb-dev/react";
 import { ChainId, ListingType, NATIVE_TOKENS } from "@thirdweb-dev/sdk";
 import type { NextPage } from "next";
@@ -23,10 +27,14 @@ const ListingPage: NextPage = () => {
   // Hooks to detect user is on the right network and switch them if they are not
   const networkMismatch = useNetworkMismatch();
   const [, switchNetwork] = useNetwork();
+  const address = useAddress();
+  const connectWithMetamask = useMetamask();
+  const connectWithWalletConnect = useWalletConnect();
+  const connectWithCoinbaseWallet = useCoinbaseWallet();
 
   // Initialize the marketplace contract
   const marketplace = useMarketplace(
-    "0xbB4Cbd8891C4623dB797D510EEAd921730A84a0E" // Your marketplace contract address here
+    "0xD0bF80D66A78f38667711a8eC0AbE2248773908D" // Your marketplace contract address here
   );
 
   // Fetch the listing from the marketplace contract
@@ -46,7 +54,8 @@ const ListingPage: NextPage = () => {
   }
 
   if (!listing) {
-    return <div className={styles.middle_div}><div className="toast align-items-center text-bg-primary mt-5 border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    return <div className={styles.middle_div}>
+<div className="toast align-items-center text-bg-primary mt-5 border-0" role="alert" aria-live="assertive" aria-atomic="true">
   <div className="d-flex">
     <div className="toast-body">Listing not found</div>
     <button type="button" className="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -58,7 +67,7 @@ const ListingPage: NextPage = () => {
     try {
       // Ensure user is on the correct network
       if (networkMismatch) {
-        switchNetwork && switchNetwork(4);
+        switchNetwork && switchNetwork('250');
         return;
       }
 
@@ -67,7 +76,7 @@ const ListingPage: NextPage = () => {
         await marketplace?.direct.makeOffer(
           listingId, // The listingId of the listing we want to make an offer for
           1, // Quantity = 1
-          NATIVE_TOKENS[ChainId.Mumbay].wrapped.address, // Wrapped Ether address on Rinkeby
+          NATIVE_TOKENS[ChainId.Fantom].wrapped.address, // Wrapped Ether address on Rinkeby
           bidAmount // The offer amount the user entered
         );
       }
@@ -83,7 +92,7 @@ const ListingPage: NextPage = () => {
         } created successfully!`
       );
     } catch (error) {
-      console.error(error);
+      console.log(error);
       alert(error);
     }
   }
@@ -92,7 +101,7 @@ const ListingPage: NextPage = () => {
     try {
       // Ensure user is on the correct network
       if (networkMismatch) {
-        switchNetwork && switchNetwork(80001);
+        switchNetwork && switchNetwork('250');
         return;
       }
 
@@ -100,13 +109,14 @@ const ListingPage: NextPage = () => {
       await marketplace?.buyoutListing(listingId, 1);
       alert("NFT bought successfully!");
     } catch (error) {
-      console.error(error);
+      console.log(error);
       alert(error);
     }
   }
 
   return (
     <div className={styles.container}>
+        <hr className={styles.divider} style={{ marginTop: 66 }} />
       <div className={styles.listingContainer}>
         <div className={styles.leftListing}>
           <MediaRenderer
@@ -131,14 +141,38 @@ const ListingPage: NextPage = () => {
             {listing.buyoutCurrencyValuePerToken.symbol}
           </h2>
 <div className={styles.grupInput}>
+      {!address ? (
+        <button
+          className="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#dompetModal"
+        >
+          Sign In Wallet
+        </button>
+      ) : (
           <div className="input-group">
-<input type="text" name="bidAmount" class="form-control" placeholder="Amount BID" onChange={(e) => setBidAmount(e.target.value)} aria-label="Amount Bid" />
-<button class="btn btn-bid btn-outline-warning" type="button" onClick={createBidOrOffer} style={{width: 120}}>BID</button>
-  <button class="btn btn-buy btn-primary" type="button" onClick={buyNft} style={{width: 120}}>BUY</button>
+<input type="text" name="bidAmount" className="form-control" placeholder="Amount BID" onChange={(e) => setBidAmount(e.target.value)} aria-label="Amount Bid" />
+<button className="btn btn-bid btn-outline-secondary" type="button" onClick={createBidOrOffer} style={{width: 120}}>BID</button>
+  <button className="btn btn-buy btn-primary" type="button" onClick={buyNft} style={{width: 120}}>BUY</button>
         </div>
+      )}
           </div>
         </div>
       </div>
+<div className="modal fade" id="dompetModal" tabIndex="-1">
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content">
+      <div className="modal-body">
+        <div className="row p-3">
+        <button className="btn justify-content-center align-items-center d-flex gap-2" data-bs-dismiss="modal" style={{background: "#ca6510", color: "#fff"}}
+          onClick={connectWithMetamask}><i className={styles.metamask}></i> METAMASK WALLET</button>
+        <button className="btn btn-secondary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithWalletConnect}><i className={styles.walletconnect}></i> WALLETconnect</button>
+        <button className="btn btn-primary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithCoinbaseWallet}><i className={styles.coinbase}></i> CoinBase Wallet</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
     </div>
   );
 };

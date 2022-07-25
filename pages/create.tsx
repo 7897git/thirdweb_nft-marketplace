@@ -1,7 +1,8 @@
 import {
   useAddress,
   useMetamask,
-  useWalletConnect, 
+  useWalletConnect,
+  useCoinbaseWallet,
   useMarketplace,
   useNetwork,
   useNetworkMismatch,
@@ -20,10 +21,11 @@ const Create: NextPage = () => {
 
   const connectWithMetamask = useMetamask();
   const connectWithWalletConnect = useWalletConnect();
+  const connectWithCoinbaseWallet = useCoinbaseWallet();
 
   // Connect to our marketplace contract via the useMarketplace hook
   const marketplace = useMarketplace(
-    "0xbB4Cbd8891C4623dB797D510EEAd921730A84a0E" // Your marketplace contract address here
+    "0xD0bF80D66A78f38667711a8eC0AbE2248773908D" // Your marketplace contract address here
   );
 
   // This function gets called when the form is submitted.
@@ -31,7 +33,7 @@ const Create: NextPage = () => {
     try {
       // Ensure user is on the correct network
       if (networkMismatch) {
-        switchNetwork && switchNetwork(4);
+        switchNetwork && switchNetwork(250);
         return;
       }
 
@@ -136,7 +138,7 @@ const Create: NextPage = () => {
               defaultChecked
               className="btn-check"
             />
-            <label htmlFor="directListing" className="btn btn-outline-primary">
+            <label htmlFor="directListing" className="btn btn-outline-success">
               Direct Listing
             </label>
             <input
@@ -146,7 +148,7 @@ const Create: NextPage = () => {
               value="auctionListing"
               className="btn-check"
             />
-            <label htmlFor="auctionListing" className="btn btn-outline-primary">
+            <label htmlFor="auctionListing" className="btn btn-outline-info">
               Auction Listing
             </label>
           </div>
@@ -154,40 +156,40 @@ const Create: NextPage = () => {
           {/* NFT Contract Address Field */}
 <div className="row">
     <div className="col-12">
-        <div class="form-floating mb-3" style={{textAlign: "start"}}>
+        <div className="form-floating mb-3" style={{textAlign: "start"}}>
           <input
             type="text"
             name="contractAddress"
             className="form-control" id="Contract"
             placeholder="NFT Contract Address"
           />
-            <label for="Contract">NFT Contract Address</label>
+            <label htmlFor="Contract">NFT Contract Address</label>
         </div>
        </div>
     </div>
 <div className="row">
     <div className="col-12 col-sm-6">
           {/* NFT Token ID Field */}
-        <div class="form-floating mb-3" style={{textAlign: "start"}}>
+        <div className="form-floating mb-3" style={{textAlign: "start"}}>
           <input
             type="text"
             name="tokenId"
             className="form-control" id="Token"
             placeholder="NFT Token ID"
           />
-            <label for="Token">NFT Token ID</label>
+            <label htmlFor="Token">NFT Token ID</label>
         </div>
 </div>
-    <div class="col-12 col-sm-6">
+    <div className="col-12 col-sm-6">
           {/* Sale Price For Listing Field */}
-        <div class="form-floating mb-3" style={{textAlign: "start"}}>
+        <div className="form-floating mb-3" style={{textAlign: "start"}}>
           <input
             type="text"
             name="price"
             className="form-control" id="Price"
             placeholder="Sale Price"
           />
-            <label for="Price">Sale Price</label>
+            <label htmlFor="Price">Sale Price</label>
         </div>
   </div>
 </div>
@@ -206,19 +208,17 @@ const Create: NextPage = () => {
       )}
         </div>
       </div>
-<div className="modal fade" id="dompetModal" tabindex="-1" aria-labelledby="dompetModalLabel" aria-hidden="true">
+<div className="modal fade" id="dompetModal" tabIndex="-1" aria-labelledby="dompetModalLabel" aria-hidden="true">
   <div className="modal-dialog modal-dialog-centered">
     <div className="modal-content">
-      <div className="modal-header">
-        <h5 className="modal-title" id="dompetModalLabel">Sign in</h5>
-        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
       <div className="modal-body">
         <div className="row p-3">
-        <button className="btn btn-primary" data-bs-dismiss="modal"
-          onClick={connectWithMetamask}>METAMASK WALLET</button>
-        <button className="btn btn-secondary mt-3" data-bs-dismiss="modal"
-          onClick={connectWithWalletConnect}>WALLETconnect</button>
+        <button className="btn justify-content-center align-items-center d-flex gap-2" data-bs-dismiss="modal" style={{background: "#ca6510", color: "#fff"}}
+          onClick={connectWithMetamask}><i className={styles.metamask}></i> METAMASK WALLET</button>
+        <button className="btn btn-secondary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithWalletConnect}><i className={styles.walletconnect}></i> WALLETconnect</button>
+        <button className="btn btn-primary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithCoinbaseWallet}><i className={styles.coinbase}></i> CoinBase Wallet</button>
       </div>
     </div>
     </div>

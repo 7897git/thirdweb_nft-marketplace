@@ -8,12 +8,6 @@
 }
 
 /* Set core body defaults */
-body {
-  font-family: "Inter", sans-serif;
-  text-align: center;
-  text-rendering: optimizeSpeed;
-  line-height: 1.5;
-}
 
 /* Inherit fonts for inputs and buttons */
 input,
@@ -36,22 +30,8 @@ h2 {
   font-size: 26px;
 }
 
-.metamask {
-    background: url(../public/icons/metamask.webp);
-    display: block;
-    width: 18px;
-    height: 18px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-.walletconnect {
-    background: url(../public/icons/walletconnect.png);
-    display: block;
-    width: 18px;
-    height: 18px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+.dropdown-menu[data-bs-popper] {
+    left: -35px !important;
 }
 
 ::-webkit-scrollbar {
@@ -74,6 +54,4 @@ h2 {
   background: #555; 
 }
 
-.dropdown-menu[data-bs-popper] {
-    left: -40px !important;
-}
+

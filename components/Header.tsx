@@ -1,31 +1,43 @@
 import { 
-useAddress, 
-useMetamask, 
-useWalletConnect, 
-useDisconnect } from "@thirdweb-dev/react";
+    useAddress, 
+    useMetamask, 
+    useWalletConnect,
+    useCoinbaseWallet,
+    useDisconnect
+} from "@thirdweb-dev/react";
+import Image from 'next/image'
 import Link from "next/link";
 import React from "react";
 import styles from "../styles/Home.module.css";
+import { useState } from "react";
+
+
 
 export default function Header() {
   // Helpful thirdweb hooks to connect and manage the wallet from metamask.
   const address = useAddress();
   const connectWithMetamask = useMetamask();
   const connectWithWalletConnect = useWalletConnect();
+  const connectWithCoinbaseWallet = useCoinbaseWallet();
   const disconnectWallet = useDisconnect();
 
+  async function Header() {
+
+
+    }
+
   return (
-    <nav className="navbar shadow fixed-top navbar-expand-lg bg-white">
+    <nav className="navbar py-3 shadow fixed-top navbar-expand-lg bg-secondary">
      <div className="container-fluid">
       <div className={styles.left}>
         <div style={{ display: "contents" }}>
           <Link href="/" passHref role="button">
-            <img
-              src={`/logo.gif`}
+            <Image
+              src={`/gif.webp`}
               alt="DAFF Logo"
-              width={145}
-              height={'auto'}
-              style={{ cursor: "pointer" }}
+              width={38}
+              height={38}
+              style={{ cursor: "pointer", borderRadius: "8px" }}
             />
           </Link>
         </div>
@@ -47,8 +59,9 @@ export default function Header() {
           </button>
     <ul className="dropdown-menu">
         <li><a href="javascript:;" className="dropdown-item show" style={{ display: "flex", flexWrap: "nowrap", gridGap: 10, alignItems: "center" }}
-            onClick={() => connectWithMetamask()}><i className="metamask"></i> Metamask</a></li>
-        <li><a href="javascript:;" className="dropdown-item" style={{ display: "flex", flexWrap: "nowrap", gridGap: 10, alignItems: "center" }} onClick={connectWithWalletConnect}><i className="walletconnect"></i>WalletConnect</a></li>
+            onClick={() => connectWithMetamask()}><i className={styles.metamask}></i> Metamask</a></li>
+        <li><a href="javascript:;" className="dropdown-item" style={{ display: "flex", flexWrap: "nowrap", gridGap: 10, alignItems: "center" }} onClick={connectWithWalletConnect}><i className={styles.walletconnect}></i>WalletConnect</a></li>
+        <li><a href="javascript:;" className="dropdown-item" style={{ display: "flex", flexWrap: "nowrap", gridGap: 10, alignItems: "center" }} onClick={connectWithCoinbaseWallet}><i className={styles.coinbase}></i>CoinBase Wallet</a></li>
     </ul>
         </div>
         )}

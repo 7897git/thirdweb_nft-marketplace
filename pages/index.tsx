@@ -2,130 +2,275 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "../styles/Home.module.css";
 import Link from "next/link";
+import Image from 'next/image';
 import {
-  MediaRenderer,
-  useActiveListings,
-  useMarketplace,
+  ChainId,
+  useContractMetadata,
+  useNetwork,
+  useNetworkMismatch,
+  useActiveClaimCondition,
+  useEditionDrop,
+  useNFT,
+  ThirdwebNftMedia,
+  useAddress,
+  useMetamask
 } from "@thirdweb-dev/react";
-
-const Home: NextPage = () => {
+import { BigNumber } from "ethers";
+import { useState } from "react";
+  const Home: NextPage = () => {
   const router = useRouter();
+const myEditionDropContractAddress =
+  "0x15bA5756CD3A35B4d656CB481cF93adfCA05c448";
+const editionDrop = useEditionDrop(myEditionDropContractAddress);
+  const address = useAddress();
+  const connectWithMetamask = useMetamask();
+  const isOnWrongNetwork = useNetworkMismatch();
+  const [, switchNetwork] = useNetwork();
 
-  // Connect your marketplace smart contract here (replace this address)
-  const marketplace = useMarketplace(
-    "0xbB4Cbd8891C4623dB797D510EEAd921730A84a0E" // Your marketplace contract address here
+  // The amount the user claims, updates when they type a value into the input field.
+  const [quantity, setQuantity] = useState<number>(1); // default to 1
+  const [claiming, setClaiming] = useState<boolean>(false);
+
+  // Load contract metadata
+  const { data: contractMetadata } = useContractMetadata(
+    myEditionDropContractAddress
   );
-  
-  const { data: listings, isLoading: loadingListings } =
-    useActiveListings(marketplace);
 
+  const { data: nftMetadata } = useNFT(editionDrop, 0);
+
+  // Load the active claim condition
+  const { data: activeClaimCondition } = useActiveClaimCondition(
+    editionDrop,
+    BigNumber.from(0)
+  );
+
+  console.log({
+    contractMetadata,
+    activeClaimCondition,
+  });
+
+  // Loading state while we fetch the metadata
+  if (!editionDrop || !contractMetadata) {
+    return<div className={styles.middle_div}> <div class="spinner-grow text-dark" role="status">
+              <span class="visually-hidden">Loading...</span></div>
+            </div>;
+  }
+
+  // Function to mint/claim an NFT
+  async function mint() {
+    // Make sure the user has their wallet connected.
+    if (!address) {
+      connectWithMetamask();
+      return;
+    }
+
+    // Make sure the user is on the correct network (same network as your NFT Drop is).
+    if (isOnWrongNetwork) {
+      switchNetwork && switchNetwork(ChainId.Mumbai);
+      return;
+    }
+
+    setClaiming(true);
+
+    try {
+      const minted = await editionDrop?.claim(0, quantity);
+      console.log(minted);
+      alert(`Successfully minted NFT${quantity > 1 ? "s" : ""}!`);
+    } catch (error: any) {
+      console.error(error);
+      alert((error?.message as string) || "Something went wrong");
+    } finally {
+      setClaiming(false);
+    }
+  }
   return (
-    <div className="container-fluid">
+    <div className="container text-center">
 <div className={styles.paralax}></div>
-        <hr className={styles.divider} style={{ marginTop: 66 }} />
-        <h1 className={styles.h1}><span className="text-primary">unknown</span><span className="text-muted fst-italic fw-bold fs-7" style={{ opacity: "75%", fontSize: 70, marginLeft: "-2%" }}>©️</span> <span className="text-white">nft Marketplace</span></h1>
+        <hr className={styles.divider} style={{ marginTop: 50 }} />
 
-        <hr className={styles.divider} />
-        <div className={styles.main}>
-          {
-            // If the listings are loading, show a loading message
-            loadingListings ? (
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <hr className={styles.divider} /><div className={styles.background_hitam}>
+      
+      <div className="row">
+        <div className="col-md-6 text-center">
+          {/* Image Preview of NFTs */}
+        <div className="card shadow" style={{maxWidth: "100%", height: "auto", margin: "28px 0", overflow: "hidden"}}>
+          <ThirdwebNftMedia
+            // @ts-ignore
+            metadata={nftMetadata?.metadata}
+            className="img-fluid rounded shadow"
+            width={600}
+            height={600}
+            style={{objectFit: "cover", objectPosition: "center"}}
+          />
+<div className={styles.card_body}>
+          {/* Amount claimed so far */}
+          <div className={styles.total}>
+            <div className={styles.mintAreaLeft}>
+              <p style={{margin: 0, color: "#2196F3"}}>Total Minted </p>
             </div>
-            ) : (
-              // Otherwise, show the listings
-              <div className={styles.listingGrid}>
-                {listings?.map((listing) => (
-                  <div
-                    key={listing.id}
-                    className="card shadow"
-                    onClick={() => router.push(`/listing/${listing.id}`)}
-                    style={{ overflow: "hidden"}}
-                  >
-                    <MediaRenderer
-                      src={listing.asset.image}
-                      style={{
-                        // Fit the image to the container
-                        width: "100%",
-                        height: "100%",
+            <div className={styles.mintAreaRight}>
+              {activeClaimCondition ? (
+                <p style={{margin: 0, color: "#2196F3"}}>
+                  {/* Claimed supply so far */}
+                  <b> {activeClaimCondition.currentMintSupply}</b>
+                  {" / "}
+                  {activeClaimCondition.maxQuantity}
+                </p>
+              ) : (
+                <div className={styles.middle_div}>
+            <div class="spinner-grow text-dark" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div></div>
+              )}
+            </div>
+          </div>
 
-                      }}
-                    />
-                    <h2 className={styles.nameContainer}>
-                      <Link className="stretched-link" href={`/listing/${listing.id}`}>
-                        <a className="stretched-link">{listing.asset.name}</a>
-                      </Link>
-                    </h2>
+          {/* Show claim button or connect wallet button */}
+          {address ? (
+            <>
 
-                    <p>
+              <div className={styles.btn_group_counter}>
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => setQuantity(quantity - 1)}
+                  disabled={quantity <= 1}
+                  style={{borderRadius: "25px", padding: "3px 8px"}}
+                >
+                 <i className="fa fa-minus"></i>
+                </button>
 
-                      <b>{listing.buyoutCurrencyValuePerToken.displayValue}</b>{" "}
-                      {listing.buyoutCurrencyValuePerToken.symbol}
-                    </p>
-                  </div>
-                ))}
+                <h6>{quantity}</h6>
+
+                <button
+                  style={{borderRadius: "25px", padding: "3px 8px"}}
+                  className="btn btn-sm btn-primary"
+                  onClick={() => setQuantity(quantity + 1)}
+                  disabled={
+                    quantity >=
+                    parseInt(
+                      activeClaimCondition?.quantityLimitPerTransaction || "0"
+                    )
+                  }
+                >
+                 <i className="fa fa-plus"></i>
+                </button>
               </div>
-            )
-          }
+              <button
+                className="btn btn-primary" style={{width: 100}}
+                onClick={mint}
+                disabled={claiming}
+              >
+                {claiming ? "Minting..." : "Mint"}
+              </button>
+            </>
+          ) : (
+            <button className="btn btn-primary" style={{width: 100}} onClick={connectWithMetamask}>
+              Mint Me
+            </button>
+          )}
         </div>
-        <hr className={styles.divider} /><div className={styles.background_putih}>
-      <h2 className={styles.h1} style={{padding: 20}}>Get random mistery NFT drop & Get reward <b>UC</b> token from stakes</h2>
+    </div>
+</div>
+        <div className="col-md-6 text-center">
       <div
         className={styles.nftRowGrid}
-        role="button"
-        onClick={() => router.push(`/mint`)}
       >
-        {/* Mint a new NFT */}
-        <div className={styles.optionSelectBox}>
-          <img src={`/icons/drop.webp`} alt="drop" />
-          <h2 className={styles.selectBoxTitle}>Mint NFT</h2>
+        {/* Game NFT */}
+        <div
+          className={styles.optionSelectBox}
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#comingsoon"
+        >
+          <Image src={`/icons/game.webp`}
+              width={40}
+              height={40}  alt="game" />
+          <h2 className={styles.selectBoxTitle}>Game NFTs</h2>
           <p className={styles.selectBoxDescription}>
-            Get NFT Drop from the collection to claim an <b>UC</b> token.<br />
-            1 wallet 1 claim.
+            NFTs Game, <b>Play to earn</b>{" "}
+            
           </p>
         </div>
-
+        {/* Colection of my NFT */}
+        <div className={styles.optionSelectBox}
+        role="button"
+        onClick={() => router.push(`/listing`)}>
+          <Image src={`/icons/drop.webp`}
+              width={40}
+              height={40}  alt="drop" />
+          <h2 className={styles.selectBoxTitle}>NFT collection</h2>
+          <p className={styles.selectBoxDescription}>
+            Explore our collection.
+          </p>
+        </div>
+        {/* Mint a new NFT */}
+        <div className={styles.optionSelectBox}
+        role="button"
+        onClick={() => router.push(`/mint`)}>
+          <Image src={`/icons/edition-drop.webp`}
+              width={40}
+              height={40}  alt="drop" />
+          <h2 className={styles.selectBoxTitle}>NFT drop</h2>
+          <p className={styles.selectBoxDescription}>
+            Get NFT Drop to claim <b>DAFF</b> token.
+          </p>
+        </div>
+        {/* Stake NFT */}
         <div
           className={styles.optionSelectBox}
           role="button"
           onClick={() => router.push(`/stake`)}
         >
-          <img src={`/icons/token.webp`} alt="drop" />
+          <Image src={`/icons/token.webp`}
+              width={40}
+              height={40} alt="token" />
           <h2 className={styles.selectBoxTitle}>Stake Your NFTs</h2>
           <p className={styles.selectBoxDescription}>
-            If you have claim <b>a NFT drop</b>{" "}
-            stake your NFTs, and earn tokens from <b>UC</b> token.<br/>Claim Reward Here.
+            <b>stake your NFTs,</b>{" "}
+             and earn tokens from <b>DAFF</b> token.
           </p>
         </div>
       </div>
-
-        <hr className={styles.divider} style={{borderColor: "#000"}} />
+<div class="alert alert-secondary" role="alert">
+<span className="fs-6 text-muted">Please use<b>
+            {" "}
+            <a
+              href="https://fantom.foundation/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.blue}
+            >
+              FANTOM
+            </a> </b> network for transaction, if not, you will lose your money.</span>
+</div>
+        </div>
+        </div>
+      </div>
 
         <p className={styles.explain}>
           NFT marketplace using{" "}
           <b>
             {" "}
             <a
-              href="https://polygon.technology/"
+              href="https://fantom.foundation/"
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.purple}
+              className={styles.blue}
             >
-              POLYGON
+              FANTOM
             </a>
           </b>{" "}
-          network.<br /> list your ERC721 and ERC1155 tokens for auction or direct sale.
+          network.<br /> 
         </p>
-
-        </div>
-        <div style={{ marginRight: 20, marginBottom: 20, position: "fixed", bottom: 0, right: 0 }}>
-          <Link href="/create">
-            <a className={styles.mainButton} style={{ textDecoration: "none" }}>
-              Create A Listing
-            </a>
-          </Link>
-        </div>
+<div className="modal fade" id="comingsoon" tabIndex="-1">
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content">
+      <div className="modal-body">
+        <h1>Comming Soon</h1>
+      </div>
+    </div>
+    </div>
+  </div>
       </div>
   );
 };

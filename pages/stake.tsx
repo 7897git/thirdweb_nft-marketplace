@@ -3,26 +3,34 @@ import {
   useAddress,
   useMetamask,
   useWalletConnect,
+  useCoinbaseWallet,
   useNFTDrop,
   useToken,
   useTokenBalance,
   useOwnedNFTs,
   useContract,
+  useNetwork,
+  useNetworkMismatch
 } from "@thirdweb-dev/react";
 import { BigNumber, ethers } from "ethers";
+import Image from 'next/image'
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
+import swal from 'sweetalert';
 
-const nftDropContractAddress = "0xA156054bF9b3A5b3B62FD789922D234397BdAe66";
-const tokenContractAddress = "0x82694260C846dd1391a9bEFC1D21a4436105D01F";
-const stakingContractAddress = "0xa50Be3a577DBdd2219117BC1Fa24Cb0d58595c98";
+const nftDropContractAddress = "0x6b8b1CD941920Bf08297a29D0A93bD05315ECD63";
+const tokenContractAddress = "0xb8f9088eEf25e32d1f984ed8aD55dCD968d420F2";
+const stakingContractAddress = "0x30540675be866BDA8DF11197acB03bF1784DE11A";
 
 const Stake: NextPage = () => {
   // Wallet Connection Hooks
   const address = useAddress();
+  const networkMismatch = useNetworkMismatch();
+  const [, switchNetwork] = useNetwork();
   const connectWithMetamask = useMetamask();
   const connectWithWalletConnect = useWalletConnect();
+  const connectWithCoinbaseWallet = useCoinbaseWallet();
 
   // Contract Hooks
   const nftDropContract = useNFTDrop(nftDropContractAddress);
@@ -43,6 +51,10 @@ const Stake: NextPage = () => {
   const [claimableRewards, setClaimableRewards] = useState<BigNumber>();
 
   useEffect(() => {
+      if (networkMismatch) {
+        switchNetwork && switchNetwork(250);
+        return; 
+        }
     if (!contract) return;
 
     async function loadStakedNfts() {
@@ -101,7 +113,14 @@ const Stake: NextPage = () => {
   }
 
   async function claimRewards() {
+    try {
     const claim = await contract?.call("claimRewards");
+      console.log(claim);
+      swal("Berhasil", "Token DAFF siap mendarat di dompet kamu.", "success");
+    } catch (error) {
+      console.log(error);
+      swal("GAGAL!", "Minimal Withdraw 10 DAFF token.", "error");
+    }
   }
 
   if (isLoading) {
@@ -111,22 +130,36 @@ const Stake: NextPage = () => {
   }
 
   return (
-    <div className="container mt-5">
 
-      <hr className={`${styles.divider} ${styles.spacerTop}`} />
-
+    <div className='container text-center mt-5'>
+     <hr className={styles.spacerTop} />
       {!address ? (
+<div className={styles.beforeIn}>
+            <Image
+              className={'img-fluid'}
+              src={`/03.jpg`}
+              alt="DAFF Logo"
+              width={'400'}
+              height={'400'}
+              style={{ borderRadius: 10 }}
+            />
+    <div className="card">
         <button
           className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dompetModal"
         >
-          Let's MINT
+          Let's STAKING
         </button>
+    </div>
+</div>
       ) : (
         <>
 <div className="row">
-    <div className="col-12 col-sm-6 p-3 card shadow-sm">
+    <div className="col-12 col-sm-6 p-3">
+<div className="card shadow-sm">
+        <div className="card-header">
           <h2>Your Tokens</h2>
-
+        </div>
+  <div className="card-body">
           <div className={styles.tokenGrid}>
             <div className={styles.tokenItem}>
               <h3 className={styles.tokenLabel}>Claimable Rewards</h3>
@@ -146,16 +179,18 @@ const Stake: NextPage = () => {
               </p>
             </div>
           </div>
-     <hr className={`${styles.spacerTop}`} />
           <button
-            className="btn btn-success"
+            className="btn btn-success float-end"
             onClick={() => claimRewards()}
           >
             Claim Rewards
           </button>
+        </div>
+      </div>
     </div>
 
-    <div className="col-12 col-sm-6">
+    <div className="col-12 col-sm-6 p-3">
+<div className="card">
 <ul className="nav nav-tabs" id="myTab" role="tablist">
   <li className="nav-item" role="presentation">
     <button className="nav-link active" id="stakes-tab" data-bs-toggle="tab" data-bs-target="#stakes" type="button" role="tab" aria-controls="stakes" aria-selected="true">Stakes NFT</button>
@@ -166,7 +201,7 @@ const Stake: NextPage = () => {
 </ul>
 
   <div className="tab-content">
-<div className="tab-pane fade show active" id="stakes" role="tabpanel" aria-labelledby="stakes-tab" tabindex="0">
+<div className="tab-pane fade show active" id="stakes" role="tabpanel" aria-labelledby="stakes-tab" tabIndex="0">
        <div className={styles.stakeContainer}>
         <div className={styles.staked}>
           <h2>Your Staked NFTs</h2>
@@ -190,7 +225,7 @@ const Stake: NextPage = () => {
          </div>
        </div>
      </div>
-<div class="tab-pane fade" id="unstakes" role="tabpanel" aria-labelledby="unstakes-tab" tabindex="0">
+<div className="tab-pane fade" id="unstakes" role="tabpanel" aria-labelledby="unstakes-tab" tabIndex="0">
         <div className={styles.unstaked}>
           <h2>Your Unstaked NFTs</h2>
 
@@ -216,21 +251,20 @@ const Stake: NextPage = () => {
         </div>
     </div>
 </div>
+</div>
 <hr className={styles.divider} />
         </>
-      )}<div className="modal fade" id="dompetModal" tabindex="-1" aria-labelledby="dompetModalLabel" aria-hidden="true">
+      )}<div className="modal fade" id="dompetModal" tabIndex="-1" >
   <div className="modal-dialog modal-dialog-centered">
     <div className="modal-content">
-      <div className="modal-header">
-        <h5 className="modal-title" id="dompetModalLabel">Sign in</h5>
-        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
       <div className="modal-body">
         <div className="row p-3">
-        <button className="btn btn-primary" data-bs-dismiss="modal"
-          onClick={connectWithMetamask}>METAMASK WALLET</button>
-        <button className="btn btn-secondary mt-3" data-bs-dismiss="modal"
-          onClick={connectWithWalletConnect}>WALLETconnect</button>
+        <button className="btn justify-content-center align-items-center d-flex gap-2" data-bs-dismiss="modal" style={{background: "#ca6510", color: "#fff"}}
+          onClick={connectWithMetamask}><i className={styles.metamask}></i> METAMASK WALLET</button>
+        <button className="btn btn-secondary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithWalletConnect}><i className={styles.walletconnect}></i> WALLETconnect</button>
+        <button className="btn btn-primary justify-content-center mt-3 align-items-center d-flex gap-2" data-bs-dismiss="modal"
+          onClick={connectWithCoinbaseWallet}><i className={styles.coinbase}></i> CoinBase Wallet</button>
       </div>
     </div>
     </div>
